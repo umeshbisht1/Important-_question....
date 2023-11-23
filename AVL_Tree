@@ -1,0 +1,100 @@
+Node*leftR(Node*curr)
+{
+    Node*turn=curr->right;
+    Node*temp=curr->right->left;
+    curr->right->left=curr;
+    curr->right=temp;
+    return turn;
+}
+Node*rightR(Node*curr)
+{
+    Node*turn=curr->left;
+    Node*temp=curr->left->right;
+    curr->left->right=curr;
+    curr->left=temp;
+    return turn;
+}
+Node*del(Node*curr,int key)
+{
+    if(curr==NULL)
+    return NULL;
+    if(curr->data==key)
+    {
+        if(curr->left==NULL && curr->right==NULL){
+        delete(curr);
+        return NULL;
+        }
+    else if(curr->left==NULL)
+    {
+        Node*temp=curr->right;
+        delete(curr);
+        return temp;
+    }
+    else if(curr->right==NULL)
+    {
+        Node*temp=curr->left;
+        delete(curr);
+        return temp;
+    }
+    else
+    {
+        Node*next=curr->left;
+        while(next->right!=NULL)
+        {
+            next=next->right;
+        }
+        curr->data=next->data;
+        curr->left=del(curr->left,curr->data);
+    }
+    }
+    else if(key<curr->data)
+    curr->left=del(curr->left,key);
+    else
+    curr->right=del(curr->right,key);
+    
+    setHeights(curr);
+    int left=0,right=0;
+    if(curr->left!=NULL)
+    left=curr->left->height;
+    if(curr->right)
+    right=curr->right->height;
+    if(left-right>1)
+    {
+        left=right=0;
+        if(curr->left->left)
+        left=curr->left->left->height;
+        if(curr->left->right)
+        right=curr->left->right->height;
+        if(left-right>=0)
+        curr=rightR(curr);
+        else
+        {
+            curr->left=leftR(curr->left);
+            curr=rightR(curr);
+        }
+    }
+    else if(left-right<-1)
+    {
+          left=right=0;
+        if(curr->right->left)
+        left=curr->right->left->height;
+        if(curr->right->right)
+        right=curr->right->right->height;
+        if(left-right<=0)
+        curr=leftR(curr);
+        else
+        {
+            curr->right=rightR(curr->right);
+            curr=leftR(curr);
+        }
+    }
+    return curr;
+    
+    
+}
+
+Node* deleteNode(Node* root, int data)
+{
+    return del(root,data);
+    
+}
