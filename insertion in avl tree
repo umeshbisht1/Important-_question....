@@ -1,0 +1,114 @@
+ int setheight(Node*n)
+    {
+        if(!n)
+        return 0;
+        return n->height=1+max(setheight(n->left),setheight(n->right));
+    }
+      int height(Node *node) {
+        if (node == NULL) {
+            return 0;
+        }
+        
+        return (node->height);
+    }
+
+    int getBalance(Node *node) {
+        if (node == NULL) {
+            return 0;
+        }
+        
+        return (height(node->left) - height(node->right));
+    }
+    Node*leftR(Node*curr)
+{
+    Node*turn=curr->right;
+    Node*temp=curr->right->left;
+    curr->right->left=curr;
+    curr->right=temp;
+    
+    curr->height = max(height(curr->left), height(curr->right)) + 1;
+        turn->height = max(height(turn->left), height(turn->right)) + 1;
+        
+       
+    
+    return turn;
+}
+Node*rightR(Node*curr)
+{
+    Node*turn=curr->left;
+    Node*temp=curr->left->right;
+    curr->left->right=curr;
+    curr->left=temp;
+    curr->height = max(height(curr->left), height(curr->right)) + 1;
+    turn->height = max(height(turn->left), height(turn->right)) + 1;
+    return turn;
+}
+    
+   Node*Insert(Node* curr, int value)
+{
+    if (!curr) {
+ 
+        // Insert the first node, if root is NULL.
+        return new Node(value);
+    }
+ 
+    // Insert data.
+    if (value > curr->data) {
+        // Insert right node data, if the 'value'
+        // to be inserted is greater than 'root' node data.
+ 
+        // Process right nodes.
+        curr->right = Insert(curr->right, value);
+    }
+    else if (value < curr->data) {
+        // Insert left node data, if the 'value'
+        // to be inserted is smaller than 'root' node data.
+ 
+        // Process left nodes.
+        curr->left = Insert(curr->left, value);
+    }
+    curr->height=1+max(height(curr->left),height(curr->right));
+    
+    int left=0,right=0;
+    if(curr->left!=NULL)
+    left=curr->left->height;
+    if(curr->right)
+    right=curr->right->height;
+   if(left-right>1)
+    {
+        left=right=0;
+        if(curr->left->left)
+        left=curr->left->left->height;
+        if(curr->left->right)
+        right=curr->left->right->height;
+        if(left-right>=0)
+        curr=rightR(curr);
+        else
+        {
+            curr->left=leftR(curr->left);
+            curr=rightR(curr);
+        }
+    }
+    else if(left-right<-1)
+    {
+          left=right=0;
+        if(curr->right->left)
+        left=curr->right->left->height;
+        if(curr->right->right)
+        right=curr->right->right->height;
+        if(left-right<=0)
+        curr=leftR(curr);
+        else
+        {
+            curr->right=rightR(curr->right);
+            curr=leftR(curr);
+        }
+    }
+    return curr;
+}
+    Node* insertToAVL(Node* node, int data)
+    
+    {
+        return Insert(node,data);
+    }
+};
