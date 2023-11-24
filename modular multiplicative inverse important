@@ -1,0 +1,7 @@
+(a/b)%mod !=== a%mod /  b%mod  so it not valid::
+method 1::  (a*b)%mod==1 so it called th e multiplicative inverse of a::  TC=0(Mod)
+ now comes here formet little theorem::
+A ki power (M-2) mod m=a ka inverse;
+(a/b)%mod=(a*(b ki power mod-2)%mod)mod;
+
+
