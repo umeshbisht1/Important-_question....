@@ -1,0 +1,39 @@
+typedef struct TrieNode node;
+//Function to insert string into TRIE.
+void insert(struct TrieNode *root, string key)
+{
+     TrieNode*crawl=root;
+    for(int i=0;i<key.size();i++)
+    {
+        int index=key[i]-'a';
+        if(crawl->children[index]==NULL)
+        {
+           crawl->children[index]=new node();
+        }
+        
+        crawl=crawl->children[index];
+        
+    }
+    crawl->isLeaf=1;
+    
+}
+
+//Function to use TRIE data structure and search the given string.
+bool search(struct TrieNode *root, string key) 
+{
+   node*crawl=root;
+    for(auto ch:key)
+    {
+        int index=ch-'a';
+        if(crawl->children[index]==NULL)
+        {
+           return 0;
+        }
+       
+        crawl=crawl->children[index];
+        
+    }
+    if(crawl->isLeaf==1)
+          return 1;
+    return 0;
+}
