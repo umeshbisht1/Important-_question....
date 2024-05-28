@@ -1,0 +1,57 @@
+class Segment
+{
+    vector<int> seg;
+
+public:
+    Segment(int n)
+    {
+        seg.resize(4 * n + 1);
+    }
+    void build(int i, int s, int e, vector<int> &v)
+    {
+        if (s == e)
+        {
+            seg[i] = v[s];
+            return;
+        }
+        int mid = s + (e - s) / 2;
+        build(2 * i + 1, s, mid, v);
+        build(2 * i + 2, mid + 1, e, v);
+        seg[i] = seg[2 * i + 1] + seg[2 * i + 2];
+    }
+    int query(int l, int r, int i, int s, int e)
+    {
+        if (r < s || e < l)
+            return 0;
+        if (s >= l && e <= r)
+            return seg[i];
+
+        int mid = s + (e - s) / 2;
+        int left = query(l, r, 2 * i + 1, s, mid);
+        int right = query(l, r, 2 * i + 2, mid + 1, e);
+        return left + right;
+    }
+    void update(int index, int val, int i, int s, int e)
+    {
+        if (index < s || index > e)
+        {
+            return;
+        }
+
+        if (s == e)
+        {
+            seg[i] = val;
+            return;
+        }
+        int mid = s + (e - s) / 2;
+        if (index <= mid)
+        {
+            update(index, val, 2 * i + 1, s, mid);
+        }
+        else
+        {
+            update(index, val, 2 * i + 2, mid + 1, e);
+        }
+        seg[i] = seg[2 * i + 1] + seg[2 * i + 2];
+    }
+};
