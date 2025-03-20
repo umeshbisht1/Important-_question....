@@ -1,0 +1,247 @@
+# Finding the Shortest Cycle Length in a Graph using BFS and DFS
+
+## Introduction
+Detecting cycles in a graph is a fundamental problem in computer science, often encountered in network routing, deadlock detection, and dependency resolution. While **DFS (Depth-First Search)** is commonly used for detecting cycles, it does not always guarantee finding the **shortest cycle** efficiently. In contrast, **BFS (Breadth-First Search)** is optimal for this task, particularly in **undirected graphs**.
+
+This article explores how to detect the shortest cycle using both BFS and DFS and highlights why BFS is the preferred approach. We will implement solutions for both **directed** and **undirected** graphs.
+
+---
+
+## Why BFS Works Better for Finding the Shortest Cycle
+
+### 1. **BFS explores level by level**
+BFS ensures that when a cycle is detected, it is the shortest one encountered so far. Since BFS expands all neighbors at a given depth before moving deeper, it prioritizes shorter cycles over longer ones.
+
+### 2. **DFS may explore deep paths first**
+DFS is a depth-first approach, meaning it can reach deeper parts of the graph before returning to detect a cycle. This may lead to finding cycles that are **not necessarily the shortest**.
+
+### 3. **BFS uses a queue, ensuring minimal cycle length**
+In BFS, when a node is revisited, it is guaranteed that we have reached it in the shortest possible way, making it optimal for detecting the smallest cycle.
+
+---
+
+## **Finding the Shortest Cycle in an Undirected Graph**
+### **BFS Approach**
+1. Start BFS from each node.
+2. Track distances using a `dist` array.
+3. If a visited node is encountered **and is not the direct parent**, update the cycle length.
+
+#### **C++ Implementation (BFS for Undirected Graph)**
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findShortestCycle(int n, vector<vector<int>>& edges) {
+        vector<vector<int>> adj(n);
+        for (auto& e : edges) {
+            adj[e[0]].push_back(e[1]);
+            adj[e[1]].push_back(e[0]);
+        }
+        
+        int shortest = INT_MAX;
+        
+        for (int start = 0; start < n; ++start) {
+            vector<int> dist(n, -1);
+            vector<int> parent(n, -1);
+            queue<int> q;
+            
+            q.push(start);
+            dist[start] = 0;
+            
+            while (!q.empty()) {
+                int node = q.front();
+                q.pop();
+                
+                for (int neighbor : adj[node]) {
+                    if (dist[neighbor] == -1) {  // Not visited
+                        dist[neighbor] = dist[node] + 1;
+                        parent[neighbor] = node;
+                        q.push(neighbor);
+                    } else if (parent[node] != neighbor) {  // Found a cycle
+                        shortest = min(shortest, dist[node] + dist[neighbor] + 1);
+                    }
+                }
+            }
+        }
+        
+        return (shortest == INT_MAX) ? -1 : shortest;
+    }
+};
+```
+
+### **DFS Approach for Undirected Graph**
+DFS can be used, but it does not guarantee finding the shortest cycle efficiently.
+```cpp
+void dfs(int node, int parent, int depth, vector<int>& entryTime, unordered_map<int, vector<int>>& adj, int& shortest) {
+    entryTime[node] = depth;
+
+    for (int neighbor : adj[node]) {
+        if (entryTime[neighbor] == -1) {  // Not visited
+            dfs(neighbor, node, depth + 1, entryTime, adj, shortest);
+        } else if (neighbor != parent) {  // Found a cycle
+            shortest = min(shortest, abs(depth - entryTime[neighbor]) + 1);
+        }
+    }
+}
+```
+
+---
+
+## **Finding the Shortest Cycle in a Directed Graph**
+### **BFS Approach for Directed Graph**
+In directed graphs, cycles can only be detected using **back edges**. BFS still works efficiently:
+
+```cpp
+int findShortestCycle(int n, vector<vector<int>>& edges) {
+    vector<vector<int>> adj(n);
+    for (auto& e : edges) {
+        adj[e[0]].push_back(e[1]);
+    }
+    int shortest = INT_MAX;
+    
+    for (int start = 0; start < n; ++start) {
+        vector<int> dist(n, -1);
+        queue<int> q;
+        
+        q.push(start);
+        dist[start] = 0;
+        
+        while (!q.empty()) {
+            int node = q.front();
+            q.pop();
+            
+            for (int neighbor : adj[node]) {
+                if (dist[neighbor] == -1) {
+                    dist[neighbor] = dist[node] + 1;
+                    q.push(neighbor);
+                } else {  // Found a cycle
+                    shortest = min(shortest, dist[node] + dist[neighbor] + 1);
+                }
+            }
+        }
+    }
+    
+    return (shortest == INT_MAX) ? -1 : shortest;
+}
+```
+
+### **DFS Approach for Directed Graph**
+For directed graphs, DFS can be used with entry times:
+```cpp
+void dfs(int node, int depth, vector<int>& entryTime, unordered_map<int, vector<int>>& adj, int& shortest) {
+    entryTime[node] = depth;
+    
+    for (int neighbor : adj[node]) {
+        if (entryTime[neighbor] == -1) {
+            dfs(neighbor, depth + 1, entryTime, adj, shortest);
+        } else {
+            shortest = min(shortest, depth - entryTime[neighbor] + 1);
+        }
+    }
+    
+    entryTime[node] = -1; // Reset after backtracking
+}
+```
+
+---
+
+## **Conclusion**
+| Graph Type | Best Approach |
+|------------|--------------|
+| **Undirected Graph** | BFS (guarantees shortest cycle) |
+| **Directed Graph** | BFS (preferred), but DFS with entry times can work |
+
+**Key Takeaways:**
+- **BFS is optimal** for shortest cycle detection due to its level-wise exploration.
+- **DFS is useful for detecting cycles**, but not always for finding the shortest one.
+- **For directed graphs**, entry time tracking in DFS can help detect cycle lengths.
+
+BFS remains the best option for finding the shortest cycle efficiently in both **undirected and directed graphs**. 🚀
+using dfs
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int ans;
+    
+    void dfs(int node, int depth, vector<int>& entryTime, unordered_map<int, vector<int>>& adj) {
+        entryTime[node] = depth;
+
+        for (int neighbor : adj[node]) {
+            if (entryTime[neighbor] == -1) {  // If not visited, continue DFS
+                dfs(neighbor, depth + 1, entryTime, adj);
+            } 
+            else if (entryTime[neighbor] < depth - 1) {  
+                // If already visited and not the immediate parent, cycle detected
+                ans = min(ans, depth - entryTime[neighbor] + 1);
+            }
+        }
+
+        entryTime[node] = -1; // Reset after backtracking
+    }
+
+    int findShortestCycle(int n, vector<vector<int>>& edges) {
+        unordered_map<int, vector<int>> adj;
+        for (auto& e : edges) {
+            adj[e[0]].push_back(e[1]);  // Directed graph
+        }
+
+        ans = INT_MAX;
+
+        for (int i = 0; i < n; i++) {
+            vector<int> entryTime(n, -1);
+            dfs(i, 0, entryTime, adj);
+        }
+
+        return ans == INT_MAX ? -1 : ans;
+    }
+};
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findShortestCycle(int n, vector<vector<int>>& edges) {
+        vector<vector<int>> adj(n);
+        for (auto& e : edges) {
+            adj[e[0]].push_back(e[1]);
+            adj[e[1]].push_back(e[0]);
+        }
+        
+        int shortest = INT_MAX;
+        
+        // Try BFS from each node
+        for (int start = 0; start < n; ++start) {
+            vector<int> dist(n, -1);
+            vector<int> parent(n, -1);
+            queue<int> q;
+            
+            q.push(start);
+            dist[start] = 0;
+            
+            while (!q.empty()) {
+                int node = q.front();
+                q.pop();
+                
+                for (int neighbor : adj[node]) {
+                    if (dist[neighbor] == -1) {  // If the node is not visited
+                        dist[neighbor] = dist[node] + 1;
+                        parent[neighbor] = node;
+                        q.push(neighbor);
+                    } 
+                    else if (parent[node] != neighbor) {  // If it is a back edge (not parent)
+                        shortest = min(shortest, dist[node] + dist[neighbor] + 1);
+                    }
+                }
+            }
+        }
+        
+        return (shortest == INT_MAX) ? -1 : shortest;
+    }
+};
+
+using bfs
+
